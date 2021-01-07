@@ -20,6 +20,14 @@ extension Collection where Element: Identifiable {
     }
 }
 
+extension Set where Element: Identifiable {
+    mutating func remove(matching element: Element) {
+        if let idToRemove = firstIndex(matching: element) {
+            self.remove(at: idToRemove)
+        }
+    }
+}
+
 extension Data {
     // just a simple converter from a Data to a String
     var utf8: String? { String(data: self, encoding: .utf8 ) }
