@@ -8,24 +8,39 @@
 import SwiftUI
 import Combine
 
-class EmojiArtDocument: ObservableObject {
+class EmojiArtDocument: ObservableObject, Hashable, Identifiable {
+    static func == (lhs: EmojiArtDocument, rhs: EmojiArtDocument) -> Bool {
+        lhs.id == rhs.id
+    }
+    
+    
+    let id: UUID
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
+    
+    
+    
     static let palette: String = "🍏🏀❤️🌅🐤🐵"
     
     @Published private var emojiArt: EmojiArt = EmojiArt() {
         didSet {
             print("\(emojiArt.json?.utf8 ?? "nil")")
-            UserDefaults.standard.set(emojiArt.json, forKey: EmojiArtDocument.untitled)
+            UserDefaults.standard.set(emojiArt.json, forKey: "EmojiArtDocument.\(self.id.uuidString)")
         }
     }
     
-    private static let untitled = "EmojiArtDocument.Untitled"
-    
-    init() {
-        emojiArt = EmojiArt(json: UserDefaults.standard.data(forKey: EmojiArtDocument.untitled)) ?? EmojiArt()
+    init(id: UUID? = nil) {
+        self.id = id ?? UUID()
+        let defaultsKey = "EmojiArtDocument.\(self.id.uuidString)"
+        emojiArt = EmojiArt(json: UserDefaults.standard.data(forKey: defaultsKey)) ?? EmojiArt()
         fetchBackgroundImageData()
     }
     
     @Published private(set) var backgroundImage: UIImage?
+    @Published var steadyStatePanOffset: CGSize = .zero
+    @Published var steadyStateZoomScale: CGFloat = 1.0
     
     var emojis: [EmojiArt.Emoji] { emojiArt.emojis }
     @Published var selectedEmojis = Set<EmojiArt.Emoji>()
