@@ -9,6 +9,9 @@ import SwiftUI
 import Combine
 
 class EmojiArtDocument: ObservableObject, Hashable, Identifiable {
+    
+    
+    
     static func == (lhs: EmojiArtDocument, rhs: EmojiArtDocument) -> Bool {
         lhs.id == rhs.id
     }
@@ -19,8 +22,6 @@ class EmojiArtDocument: ObservableObject, Hashable, Identifiable {
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
     }
-    
-    
     
     static let palette: String = "🍏🏀❤️🌅🐤🐵"
     

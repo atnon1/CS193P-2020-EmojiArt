@@ -97,11 +97,11 @@ struct EmojiArtDocumentView: View {
                     if let url = UIPasteboard.general.url, url != document.backgroundURL {
                         confirmBackgroundPaste = true
                     } else {
-                        explaneBackgroundPaste = true
+                        explainBackgroundPaste = true
                     }
                 }, label: {
                     Image(systemName: "doc.on.clipboard").imageScale(.large)
-                        .alert(isPresented: $explaneBackgroundPaste) {
+                        .alert(isPresented: $explainBackgroundPaste) {
                                Alert(
                                 title: Text("Paste background"),
                                 message: Text("Copy the URL of an image and use this button to make it background of your document"),
@@ -125,7 +125,7 @@ struct EmojiArtDocumentView: View {
         }
     }
     
-    @State private var explaneBackgroundPaste = false
+    @State private var explainBackgroundPaste = false
     @State private var confirmBackgroundPaste = false
     
     @State private var deleteButtonIsActive = false
@@ -252,7 +252,7 @@ struct EmojiArtDocumentView: View {
     
     private func positionDeleteButton(for emoji: EmojiArt.Emoji, in size: CGSize) -> CGPoint {
         var location = position(for: emoji, in: size)
-        location = CGPoint(x: location.x + deleteButtonOffset * zoomScale * CGFloat(emoji.fontSize), y: location.y - deleteButtonOffset * zoomScale * CGFloat(emoji.fontSize))
+        location = CGPoint(x: location.x + deleteButtonOffset * emojiZoomScale(emoji) * CGFloat(emoji.fontSize), y: location.y - deleteButtonOffset * emojiZoomScale(emoji) * CGFloat(emoji.fontSize))
         return location
     }
     
