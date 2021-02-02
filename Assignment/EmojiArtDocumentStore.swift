@@ -10,7 +10,7 @@ import SwiftUI
 import Combine
 
 class EmojiArtDocumentStore: ObservableObject
-{
+{    
     let name: String
     
     func name(for document: EmojiArtDocument) -> String {
@@ -20,8 +20,22 @@ class EmojiArtDocumentStore: ObservableObject
         return documentNames[document]!
     }
     
-    func setName(_ name: String, for document: EmojiArtDocument) {
-        documentNames[document] = name
+    // Returns true if name set successfully; otherwise false
+    @discardableResult
+    func setName(_ name: String, for document: EmojiArtDocument) -> Bool {
+        var success = true
+        if let url = directory?.appendingPathComponent(name) {
+            if !documentNames.values.contains(name) {
+                removeDocument(document)
+                document.url = url
+                documentNames[document] = name
+            } else {
+                success = false
+            }
+        } else {
+            documentNames[document] = name
+        }
+        return success
     }
     
     var documents: [EmojiArtDocument] {
@@ -29,10 +43,20 @@ class EmojiArtDocumentStore: ObservableObject
     }
     
     func addDocument(named name: String = "Untitled") {
-        documentNames[EmojiArtDocument()] = name
+        let uniqueName = name.uniqued(withRespectTo: documentNames.values)
+        let document: EmojiArtDocument
+        if let url = directory?.appendingPathComponent(uniqueName) {
+            document = EmojiArtDocument(url: url)
+        } else {
+            document = EmojiArtDocument()
+        }
+        documentNames[document] = uniqueName
     }
 
     func removeDocument(_ document: EmojiArtDocument) {
+        if let name = documentNames[document], let url = directory?.appendingPathComponent(name) {
+            try? FileManager.default.removeItem(at: url)
+        }
         documentNames[document] = nil
     }
     
@@ -48,6 +72,24 @@ class EmojiArtDocumentStore: ObservableObject
             UserDefaults.standard.set(names.asPropertyList, forKey: defaultsKey)
         }
     }
+    
+    var directory: URL?
+    
+    init(directory: URL) {
+        self.name = directory.lastPathComponent
+        self.directory = directory
+        do {
+            let documents = try FileManager.default.contentsOfDirectory(atPath: directory.path)
+            for document in documents {
+                let emojiArtDocument = EmojiArtDocument(url: directory.appendingPathComponent(document))
+                documentNames[emojiArtDocument] = document
+            }
+        } catch {
+            print("EmojiArtDocumentStore: couldn't create store from directory \(directory): \(error.localizedDescription)")
+        }
+    }
+    
+    
 }
 
 extension Dictionary where Key == EmojiArtDocument, Value == String {

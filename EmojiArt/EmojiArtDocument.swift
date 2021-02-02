@@ -28,8 +28,12 @@ class EmojiArtDocument: ObservableObject, Hashable, Identifiable {
     @Published private var emojiArt: EmojiArt = EmojiArt() {
         didSet {
             print("\(emojiArt.json?.utf8 ?? "nil")")
-            UserDefaults.standard.set(emojiArt.json, forKey: "EmojiArtDocument.\(self.id.uuidString)")
+            save(emojiArt)
         }
+    }
+    
+    var url: URL? {
+        didSet { save(emojiArt) }
     }
     
     init(id: UUID? = nil) {
@@ -38,6 +42,22 @@ class EmojiArtDocument: ObservableObject, Hashable, Identifiable {
         emojiArt = EmojiArt(json: UserDefaults.standard.data(forKey: defaultsKey)) ?? EmojiArt()
         fetchBackgroundImageData()
     }
+    
+    init(url: URL) {
+        id = UUID()
+        self.url = url
+        emojiArt = EmojiArt(json: (try? Data(contentsOf: url))) ?? EmojiArt()
+        fetchBackgroundImageData()
+    }
+    
+    private func save(_ emojiArt: EmojiArt) {
+        if let url = url {
+            try? emojiArt.json?.write(to: url)
+        } else {
+            UserDefaults.standard.set(emojiArt.json, forKey: "EmojiArtDocument.\(self.id.uuidString)")
+        }
+    }
+    
     
     @Published private(set) var backgroundImage: UIImage?
     @Published var steadyStatePanOffset: CGSize = .zero
@@ -128,7 +148,7 @@ class EmojiArtDocument: ObservableObject, Hashable, Identifiable {
     
     private func fetchBackgroundImageData() {
         backgroundImage = nil
-        if let url = emojiArt.backgroundURL {
+        if let url = emojiArt.backgroundURL?.imageURL {
             fetchImageCancellable?.cancel()
             fetchImageCancellable = URLSession.shared
                 .dataTaskPublisher(for: url)

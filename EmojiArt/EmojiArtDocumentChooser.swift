@@ -10,6 +10,7 @@ import SwiftUI
 struct EmojiArtDocumentChooser: View {
     @EnvironmentObject var store: EmojiArtDocumentStore
     @State private var editMode: EditMode = .inactive
+    @State private var notUniqueNameAlert = false
     
     var body: some View {
         NavigationView {
@@ -19,7 +20,8 @@ struct EmojiArtDocumentChooser: View {
                                     .navigationBarTitle(store.name(for: document))
                     ) {
                         EditableText(store.name(for: document), isEditing: editMode.isEditing) { name in
-                            store.setName(name, for: document )
+                            let isUnique = store.setName(name, for: document)
+                            notUniqueNameAlert = !isUnique
                         }
                     }
                 }
@@ -39,6 +41,12 @@ struct EmojiArtDocumentChooser: View {
             )
             .navigationViewStyle(StackNavigationViewStyle())
             .environment(\.editMode, $editMode)
+            .alert(isPresented: $notUniqueNameAlert) {
+            Alert(
+                title: Text("Not unique name"),
+                message: Text("Name is not unique. Change is not applied."),
+                dismissButton: .default(Text("OK")))
+            }
         }
     }
 }
