@@ -63,6 +63,10 @@ extension GeometryProxy {
         let frame = self.frame(in: coordinateSpace)
         return CGPoint(x: point.x-frame.origin.x, y: point.y-frame.origin.y)
     }
+    func convert(_ point: CGPoint, to coordinateSpace: CoordinateSpace) -> CGPoint {
+        let frame = self.frame(in: coordinateSpace)
+        return CGPoint(x: point.x+frame.origin.x, y: point.y)
+    }
 }
 
 // simplifies the drag/drop portion of the demo

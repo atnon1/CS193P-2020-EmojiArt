@@ -87,7 +87,7 @@ struct EmojiArtDocumentView: View {
                     zoomToFit(image, in: geometry.size)
                 }
                 .onDrop(of: ["public.image", "public.text"], isTargeted: nil) {providers, location in
-                    var location = geometry.convert(location, from: .global)
+                    var location = location
                     location = CGPoint(x: location.x - geometry.size.width/2, y: location.y - geometry.size.height/2)
                     location = CGPoint(x: location.x - panOffset.width, y: location.y - panOffset.height)
                     location = CGPoint(x: location.x / zoomScale, y: location.y / zoomScale)
