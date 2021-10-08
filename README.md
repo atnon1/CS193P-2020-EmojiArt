@@ -12,4 +12,4 @@ App's capabilities:
 
 Issues:
 * Views definitions are long
-* Modifyers like onDrop are deprecated
+* Modifiers like onDrop are deprecated
